@@ -11,7 +11,11 @@ import { connectToDatabase } from './database.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+console.log("[INIT] Iniciando servidor...");
+
 export const startGraphQLServer = async (useCases) => {
+
+  console.log("[INIT] startGraphQLServer invocado");
   await connectToDatabase();
 
   const app = express();
@@ -32,7 +36,10 @@ export const startGraphQLServer = async (useCases) => {
   });
 
   const PORT = process.env.PORT || 3000;
+
+  console.log("[BOOT] Iniciando aplicación...");
   app.listen(PORT, () => {
+    console.log(`[BOOT] Servidor corriendo en el puerto ${PORT}`);
     console.log(`🚀 Subgraph ready at http://localhost:${PORT}/graphql`);
   });
 };
