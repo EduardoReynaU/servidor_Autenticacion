@@ -12,7 +12,7 @@ export const userResolver = ({ loginUserUseCase, registerUserUseCase, getUserByI
   Mutation: {
     // Nuevo login que maneja tanto tradicional como GitHub (según input)
     loginUser: async (_, { input }) => {
-      const { token, user } = await loginUserUseCase(input);
+      const { token, user } = await loginUserUseCase({input});
       return { token, user };
     },
 
