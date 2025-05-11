@@ -13,11 +13,38 @@ export const typeDefs = gql`
     topLanguages: [String!]
   }
 
+  type AuthPayload {
+    token: String!
+    user: User!
+  }
+
+  input LoginInput {
+    authCode: String
+    username: String
+    password: String
+  }
+
+  input RegisterInput {
+    authCode: String
+    names: String
+    lastName: String
+    username: String
+    email: String
+    password: String
+  }
+
   type Query {
     me(id: ID!): User
   }
 
   type Mutation {
-    loginWithGithub(authCode: String!): User
+    # Login general: puede ser tradicional o por GitHub (según input recibido)
+    loginUser(input: LoginInput!): AuthPayload!
+
+    # Registro general: tradicional o por GitHub
+    registerUser(input: RegisterInput!): AuthPayload!
+
+    # Si quieres conservar login exclusivo de GitHub
+    loginWithGithub(authCode: String!): AuthPayload!
   }
 `;

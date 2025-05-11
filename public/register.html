@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registro</title>
+</head>
+<body>
+  <h1>Registro</h1>
+  
+  <form id="registerForm">
+    <input type="text" name="names" placeholder="Nombres" required /><br />
+    <input type="text" name="lastName" placeholder="Apellido" required /><br />
+    <input type="text" name="username" placeholder="Usuario" required /><br />
+    <input type="email" name="email" placeholder="Correo Electrónico" required /><br />
+    <input type="password" name="password" placeholder="Contraseña" required /><br />
+    <input type="password" name="confirmPassword" placeholder="Confirmar Contraseña" required /><br />
+    <label>
+      <input type="checkbox" /> Acepto términos y condiciones
+    </label><br />
+    <button type="submit">Registrar</button>
+  </form>
+
+  <h3>O registra con:</h3>
+  <button onclick="registerWithGithub()">GitHub</button>
+  <button onclick="registerWithGoogle()">Google</button>
+
+  <script>
+    const API_URL = "http://localhost:3000/graphql";
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const query = `
+        mutation {
+            registerUser(input: {
+            names: "${form.names.value}",
+            lastName: "${form.lastName.value}", 
+            username: "${form.username.value}",
+            email: "${form.email.value}",
+            password: "${form.password.value}"
+            }) {
+            token
+            user {
+                username
+                email
+            }
+            }
+        }
+        `;
+        const variables = {
+        input: {
+        names: form.names.value,
+        lastName: form.lastName.value,
+        username: form.username.value,
+        email: form.email.value,
+        password: form.password.value
+        }};
+      console.log(query);
+      const res = await fetch("http://localhost:3000/graphql", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+        query,
+        variables
+        })
+    });
+      console.log(res);
+      if (!res.ok) {
+        alert("Error: " + res.statusText);
+        return;
+      }
+
+      const data = await res.json();
+      console.log(data);
+      if (data.errors) {
+            alert("Error: " + data.errors[0].message);
+            return; 
+        }  
+      localStorage.setItem("jwt_token", data.data.registerUser.token);
+      window.location.href = "dashboard.html";
+    });
+
+    function registerWithGithub() {
+      window.location.href = "https://github.com/login/oauth/authorize?client_id=Ov23li2f51Xu98hlOm2l&redirect_uri=http://localhost:3000/callback&scope=read:user user:email";
+    }
+
+    function registerWithGoogle() {
+      window.location.href = "https://accounts.google.com/o/oauth2/v2/auth?client_id=<GOOGLE_CLIENT_ID>&redirect_uri=<GATEWAY_CALLBACK>&response_type=code&scope=email%20profile";
+    }
+  </script>
+</body>
+</html>

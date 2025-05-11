@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Login</title>
+</head>
+<body>
+  <h1>Login</h1>
+
+  <form id="loginForm">
+    <input type="text" name="username" placeholder="Usuario o Correo" required /><br />
+    <input type="password" name="password" placeholder="Contraseña" required /><br />
+    <button type="submit">Iniciar Sesión</button>
+  </form>
+
+  <h3>O ingresa con:</h3>
+  <button onclick="loginWithGithub()">GitHub</button>
+  <button onclick="loginWithGoogle()">Google</button>
+
+  <script>
+    const API_URL = "https://localhost:3000/graphql";
+
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const query = `
+        mutation {
+          loginUser(
+            input: {
+              username: "${form.username.value}",
+              password: "${form.password.value}"
+            }
+          ) {
+            token
+            user { username, email }
+          }
+        }`;
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query })
+      });
+
+      const data = await res.json();
+      localStorage.setItem("jwt_token", data.data.loginUser.token);
+      window.location.href = "dashboard.html";
+    });
+
+    function loginWithGithub() {
+      window.location.href = "https://github.com/login/oauth/authorize?client_id=Ov23li2f51Xu98hlOm2l&redirect_uri=http://localhost:3000/callback&scope=read:user user:email";
+    }
+
+    function loginWithGoogle() {
+      window.location.href = "https://accounts.google.com/o/oauth2/v2/auth?client_id=<GOOGLE_CLIENT_ID>&redirect_uri=<GATEWAY_CALLBACK>&response_type=code&scope=email%20profile";
+    }
+  </script>
+</body>
+</html>

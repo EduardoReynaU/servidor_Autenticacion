@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard</title>
+</head>
+<body>
+  <h1>Bienvenido</h1>
+  <div id="userInfo"></div>
+
+  <script>
+    const API_URL = "https://<tu-gateway-url>/graphql";
+    const token = localStorage.getItem("jwt_token");
+
+    async function fetchUser() {
+      const query = `
+        query {
+          me {
+            username
+            email
+            avatarUrl
+          }
+        }`;
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ query })
+      });
+
+      const data = await res.json();
+      const user = data.data.me;
+      document.getElementById("userInfo").innerHTML = `
+        <p>Nombre: ${user.username}</p>
+        <p>Email: ${user.email}</p>
+        <img src="${user.avatarUrl}" alt="Avatar" width="100" />
+      `;
+    }
+
+    fetchUser();
+  </script>
+</body>
+</html>
